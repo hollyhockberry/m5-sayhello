@@ -3,7 +3,7 @@
 // http://opensource.org/licenses/mit-license.php
 
 #include <M5Unified.h>
-#include <boardname.hpp>
+#include <constants.hpp>
 #include <gitTagVersion.h>
 #include <textblock.hpp>
 
@@ -23,7 +23,7 @@ class TouchLabel : public hhb::TextBlock {
     return false;
   }
   void makeText(char* buffer) const override {
-    ::sprintf(buffer, "Touch: %-12s", BoardName::getTouchStateName(_state));
+    ::sprintf(buffer, "Touch: %-12s", hhb::Constants::getTouchStateName(_state));
   }
 };
 
@@ -37,7 +37,7 @@ void splash() {
   auto y = display.height() / 2 - display.fontHeight();
   y = print(y, "Hello,");
   char buffer[32];
-  ::sprintf(buffer, "I'm %s.", BoardName::getBoardName(M5.getBoard()));
+  ::sprintf(buffer, "I'm %s.", hhb::Constants::getBoardName(M5.getBoard()));
   y = print(y, buffer) + M5.Display.fontHeight();
   ::sprintf(buffer, "M5Unified %d.%d.%d", M5UNIFIED_VERSION_MAJOR, M5UNIFIED_VERSION_MINOR, M5UNIFIED_VERSION_PATCH);
   y = print(display.height() - display.fontHeight(), buffer);
@@ -58,7 +58,7 @@ char fflag(float f) {
 void assignLabels() {
   auto y = 0;
   y = canvas.add(y, new hhb::TextLabel([](char* buf) -> void {
-    ::sprintf(buf, "%s", BoardName::getBoardName(M5.getBoard()));
+    ::sprintf(buf, "%s", hhb::Constants::getBoardName(M5.getBoard()));
   }));
   if (M5.Display.width() > 0 && M5.Display.height() > 0) {
     y = canvas.add(y, new hhb::TextLabel([](char* buf) -> void {
@@ -81,7 +81,7 @@ void assignLabels() {
   }
   if (M5.Imu.isEnabled()) {
     y = canvas.add(y, new hhb::TextLabel([](char* buf) -> void {
-      ::sprintf(buf, "IMU: %s", BoardName::getImuTypeName(M5.Imu.getType()));
+      ::sprintf(buf, "IMU: %s", hhb::Constants::getImuTypeName(M5.Imu.getType()));
     }));
     y = canvas.add(y,
       new hhb::ValueLabel<char>("AX", []() -> char {
