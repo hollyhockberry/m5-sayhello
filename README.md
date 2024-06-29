@@ -1,4 +1,4 @@
-<center><span style="font-size: 42px;">☺️ M5Stack devices introduce themselves. ☺️ </span></center>
+# ☺️ m5-sayhello: M5Stack devices introduce themselves. ☺️
 
 ## これは何?
 
