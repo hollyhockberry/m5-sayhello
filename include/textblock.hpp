@@ -12,6 +12,7 @@ namespace hhb {
 class TextBlock {
   uint8_t x = 0;
   uint8_t y = 0;
+  bool lf = false;
  public:
   int width() const {
     return text() ? ::strlen(text()) * M5.Display.fontWidth() : 0;
@@ -23,22 +24,39 @@ class TextBlock {
     this->x = x;
     this->y = y;
   }
+  void lineFeed(bool lf) {
+    this->lf = lf;
+  }
   void print() {
     auto t = text();
     if (t) {
       M5.Display.setCursor(x, y);
       M5.Display.print(t);
+      print(t);
+    }
+  }
+  void printSerial() {
+    auto t = text();
+    if (t) {
+      print(t);
     }
   }
 
  protected:
   virtual void makeText(char* buffer) const = 0;
  private:
+  void print(const char* t) const {
+    ::printf("\033[?25l\033[%d;%dH%s%s\n",
+        y / M5.Display.fontHeight() + 1,
+        x / M5.Display.fontWidth(),
+        t,
+        lf ? "\033[K" : "");
+  }
   const char* text() const {
     static char buffer[64];
     makeText(buffer);
     return buffer;
-  }  
+  }
 };
 
 class TextLabel : public TextBlock {
@@ -90,9 +108,17 @@ class ValueLabel : public TextBlock {
 
 class Canvas {
   std::vector<TextBlock*> textblocks = {};
+  uint32_t last = 0;
  public:
   void loop() {
     M5.update();
+    auto now = M5.millis();
+    if (now - last > 5000) {
+      last = now;
+      for (auto block : textblocks) {
+        block->printSerial();
+      }
+    }
     for (auto block : textblocks) {
       if (block->update()) {
         block->print();
@@ -153,6 +179,12 @@ class Canvas {
         textblocks.push_back(label);
       }
       x += offs;
+    }
+    auto tail = std::find_if(labels.rbegin(), labels.rend(), [](TextBlock* l) {
+      return l != nullptr;
+    });
+    if (tail != labels.rend()) {
+      (*tail)->lineFeed(true);
     }
     return y + M5.Display.fontHeight();
   }
